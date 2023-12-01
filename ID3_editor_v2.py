@@ -5,14 +5,16 @@ import glob
 
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
-from tkinter import Tk
+from tkinter import Tk, Label, Button
 from tkinter import filedialog
 
-#TODO:  Lire la configuration du début depuis un settings.ini, et juste demander confirmation
-#       (va probablement avec le premier point) revoir le code pour le simplifier
 
-#Hides Tk base window
-Tk().withdraw()
+fenetre = Tk()
+fenetre.geometry("1280x720")
+fenetre.title("MP3 tag editor")
+
+fenetre.mainloop()
+
 
 genre_table = ["Classique", "Video game Soundtrack", "Film Soundtrack", "Anime Soundtrack",
                "Song", "Epic Music", "Jazz", "National Anthem"]
