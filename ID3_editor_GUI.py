@@ -5,7 +5,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, BOTTOM
 from tkintertable import TableCanvas, TableModel
 
 
@@ -18,8 +18,11 @@ folder_var = ""
 
 root = None
 
+model = TableModel()
+
 
 def create_table():
+    global model
 
     mp3_files = list_mp3_files()
 
@@ -31,23 +34,17 @@ def create_table():
     tframe.pack(expand=True, fill=tk.BOTH)
 
     # Create table columns title
-    table = TableCanvas(tframe, rows=0, cols=0)
-    table.model.addColumn(columns_table[0])
-    table.model.addColumn(columns_table[1])
-    table.model.addColumn(columns_table[2])
-    table.model.addColumn(columns_table[3])
-    table.model.addColumn(columns_table[4])
-    table.model.addColumn(columns_table[5])
-    table.model.addColumn(columns_table[6])
-    table.model.addColumn(columns_table[7])
-    table.model.addColumn(columns_table[8])
+    table = TableCanvas(tframe, model, rows=0, cols=0)
+    for i in range(len(columns_table)):
+        table.model.addColumn(columns_table[i])
 
     table.createTableFrame()
 
-
     for file in mp3_files:
         _track = EasyID3(file)
+
         table.addRow(
+            key=os.path.basename(file),
             Nom_du_fichier=os.path.basename(file),
             Titre=_track['title'][0] if 'title' in _track else '',
             Genre=_track['genre'][0] if 'genre' in _track else '',
@@ -58,6 +55,9 @@ def create_table():
             Opus=_track['tracknumber'][0] if 'tracknumber' in _track else '',
             Image=''
         )
+
+
+
 
     table.show()
 
@@ -76,11 +76,21 @@ def list_mp3_files():
     return files
 
 
+def save_metadata():
+    global model
+    for track_number in model.getRowCount():
+        print(track_number)
+        track = model.getRecordAtRow(track_number)
+        print(track)
+
+    return
+
+
 def main():
     # Create the main window
     global root
     root = tk.Tk()
-    root.title("MP3 Renamer")
+    root.title("MP3 Editor")
 
     # Create a menu bar
     menubar = tk.Menu(root)
@@ -88,11 +98,17 @@ def main():
 
     # Create File menu
     file_menu = tk.Menu(menubar, tearoff=0)
-    file_menu.add_command(label="Open Folder", command=open_folder)
-    file_menu.add_command(label="Save")
+    file_menu.add_command(label="Open Folder", command=open_folder, accelerator="Ctrl+O")
+    file_menu.add_command(label="Save", command=save_metadata(), accelerator="Ctrl+S")
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.destroy)
     menubar.add_cascade(label="File", menu=file_menu)
+
+    save_button = tk.Button(root, text="Sauvegarder", command=save_metadata)
+    save_button.pack(side=BOTTOM)
+
+    root.bind("<Control-o>", lambda e: open_folder())
+    root.bind("<Control-s>", lambda e: save_metadata())
 
     # Run the Tkinter event loop
     root.mainloop()
