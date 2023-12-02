@@ -5,7 +5,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 from tkintertable import TableCanvas, TableModel
 
 
@@ -20,6 +20,13 @@ root = None
 
 
 def create_table():
+
+    mp3_files = list_mp3_files()
+
+    if not mp3_files:
+        tk.messagebox.showinfo("No mp3 file found", "No mp3 file was found in the provided directory")
+        return
+
     tframe = ttk.Frame(root)
     tframe.pack(expand=True, fill=tk.BOTH)
 
@@ -37,7 +44,6 @@ def create_table():
 
     table.createTableFrame()
 
-    mp3_files = list_mp3_files()
 
     for file in mp3_files:
         _track = EasyID3(file)
