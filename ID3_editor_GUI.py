@@ -13,6 +13,7 @@ genre_table = ["Classique", "Video game Soundtrack", "Film Soundtrack", "Anime S
                "Song", "Epic Music", "Jazz", "National Anthem"]
 
 columns_table = ['Nom_du_fichier', 'Titre', 'Genre', 'Album', 'Date', 'Compositeur', 'Interprète', 'Opus', 'Image']
+technical_names_table = ['title', 'genre', 'album', 'date', 'composer', 'performer', 'tracknumber']
 
 folder_var = ""
 
@@ -20,9 +21,12 @@ root = None
 
 model = TableModel()
 
+table = None
+
 
 def create_table():
     global model
+    global table
 
     mp3_files = list_mp3_files()
 
@@ -31,7 +35,7 @@ def create_table():
         return
 
     tframe = ttk.Frame(root)
-    tframe.pack(expand=True, fill=tk.BOTH)
+    tframe.pack(expand=True, fill="both")
 
     # Create table columns title
     table = TableCanvas(tframe, model, rows=0, cols=0)
@@ -56,9 +60,7 @@ def create_table():
             Image=''
         )
 
-
-
-
+    table.adjustColumnWidths()
     table.show()
 
 
@@ -78,10 +80,23 @@ def list_mp3_files():
 
 def save_metadata():
     global model
-    for track_number in model.getRowCount():
-        print(track_number)
+    for track_number in range(model.getRowCount()):
+        filename = model.getRecName(track_number)
         track = model.getRecordAtRow(track_number)
-        print(track)
+        file = EasyID3(folder_var+'/'+filename)
+        for i in range(len(columns_table)):
+            if i == 0 or i == len(columns_table)-1:
+                continue
+            print(technical_names_table[i-1], ':', track[columns_table[i]].strip())
+            file[technical_names_table[i-1]] = track[columns_table[i]].strip()
+            if technical_names_table[i-1] == 'performer':
+                file['artist'] = track[columns_table[i]].strip()
+        file.save()
+        if track['Titre']:
+            os.rename(folder_var+'/'+filename, folder_var+'/'+track['Titre'].strip()+".mp3")
+            model.setRecName(track['Titre'], track_number)
+            model.data[track_number][columns_table[0]] = track['Titre'].strip()+".mp3"
+            table.redraw()
 
     return
 
@@ -91,6 +106,7 @@ def main():
     global root
     root = tk.Tk()
     root.title("MP3 Editor")
+    root.geometry('480x270')
 
     # Create a menu bar
     menubar = tk.Menu(root)
@@ -99,7 +115,7 @@ def main():
     # Create File menu
     file_menu = tk.Menu(menubar, tearoff=0)
     file_menu.add_command(label="Open Folder", command=open_folder, accelerator="Ctrl+O")
-    file_menu.add_command(label="Save", command=save_metadata(), accelerator="Ctrl+S")
+    file_menu.add_command(label="Save", command=save_metadata, accelerator="Ctrl+S")
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.destroy)
     menubar.add_cascade(label="File", menu=file_menu)
