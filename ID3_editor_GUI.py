@@ -80,23 +80,25 @@ def list_mp3_files():
 
 def save_metadata():
     global model
-    for track_number in range(model.getRowCount()):
-        filename = model.getRecName(track_number)
-        track = model.getRecordAtRow(track_number)
-        file = EasyID3(folder_var+'/'+filename)
-        for i in range(len(columns_table)):
-            if i == 0 or i == len(columns_table)-1:
-                continue
-            file[technical_names_table[i-1]] = track[columns_table[i]].strip()
-            if technical_names_table[i-1] == 'performer':
-                file['artist'] = track[columns_table[i]].strip()
-        file.save()
-        if track['Titre']:
-            if model.getRecName(track_number).strip() != track['Titre'].strip()+'.mp3':
-                os.rename(folder_var+'/'+filename, folder_var+'/'+track['Titre'].strip()+".mp3")
-                model.setRecName(track['Titre'].strip()+'.mp3', track_number)
-                model.data[track['Titre'].strip()+'.mp3'][columns_table[0]] = track['Titre'].strip()+'.mp3'
-                table.redrawTable()
+    msg_box = tk.messagebox.askquestion('Sauvegarder les modifications', 'Êtes-vous sûr de vouloir sauvegarder vos modifications ?', icon='warning')
+    if msg_box:
+        for track_number in range(model.getRowCount()):
+            filename = model.getRecName(track_number)
+            track = model.getRecordAtRow(track_number)
+            file = EasyID3(folder_var+'/'+filename)
+            for i in range(len(columns_table)):
+                if i == 0 or i == len(columns_table)-1:
+                    continue
+                file[technical_names_table[i-1]] = track[columns_table[i]].strip()
+                if technical_names_table[i-1] == 'performer':
+                    file['artist'] = track[columns_table[i]].strip()
+            file.save()
+            if track['Titre']:
+                if model.getRecName(track_number).strip() != track['Titre'].strip()+'.mp3':
+                    os.rename(folder_var+'/'+filename, folder_var+'/'+track['Titre'].strip()+".mp3")
+                    model.setRecName(track['Titre'].strip()+'.mp3', track_number)
+                    model.data[track['Titre'].strip()+'.mp3'][columns_table[0]] = track['Titre'].strip()+'.mp3'
+                    table.redrawTable()
 
     return
 
