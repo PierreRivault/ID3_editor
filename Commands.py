@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from tkintertable import TableCanvas
 
 
 def set_global_genre(window):
