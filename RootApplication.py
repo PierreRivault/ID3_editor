@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkintertable import TableModel, TableCanvas
+from tkintertable import TableModel
 
 
 class RootApplication:

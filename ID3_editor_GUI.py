@@ -1,6 +1,5 @@
 from RootApplication import RootApplication
 import Actions
-import Commands
 
 
 # Initiate root window

@@ -139,7 +139,6 @@ def create_table(window):
         )
 
 
-
 def open_folder(window):
     folder_path = filedialog.askdirectory()
     if folder_path:
