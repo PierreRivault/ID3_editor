@@ -5,7 +5,6 @@ import os
 from mutagen.easyid3 import EasyID3
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from tkintertable import TableCanvas
 
 from mutagen.id3 import ID3, APIC
 
@@ -86,13 +85,16 @@ def init_window(window):
 
     # Create elements of the second frame
     # Create the table canvas
-    window.table = TableCanvas(window.middle_frame, window.model, rows=0, cols=0)
-    window.table.maxcellwidth = 600
-    window.table.autoresizecols = True
-    # Create the columns
+    table_headers = {}
     for i in range(len(window.columns_table)):
-        window.table.model.addColumn(window.columns_table[i])
-
+        table_headers[i] = (ttk.Label(window.middle_frame, text=window.columns_table[i], relief='solid')
+                            .grid(column=i + 2, row=0, sticky='ew'))
+        window.middle_frame.grid_columnconfigure(i, weight=window.columns_table_weight[i])
+    window.middle_frame.grid_columnconfigure(0, weight=window.columns_table_weight[0])
+    window.middle_frame.grid_columnconfigure(1, weight=window.columns_table_weight[1])
+    window.middle_frame.grid_columnconfigure(len(window.columns_table) + 2,
+                                             weight=window.columns_table_weight[len(window.columns_table) + 2])
+    window.table_values[0] = table_headers
     # Create elements of the third frame, commands
     save_button = tk.Button(window.bottom_frame, text="Sauvegarder", command=lambda: save_metadata(window))
     save_button.pack()
@@ -111,8 +113,6 @@ def list_mp3_files(folder_var):
 
 
 def create_table(window):
-    window.table.show()
-
     # List mp3 files in the folder
     mp3_files = list_mp3_files(window.folder_var)
 
@@ -120,17 +120,25 @@ def create_table(window):
         tk.messagebox.showinfo("No mp3 file found", "No mp3 file was found in the provided directory")
         return
 
-    for file in mp3_files:
+    for index, file in enumerate(mp3_files):
         _track = EasyID3(file)
-        kwargs = {}
+        table_row = {}
         for i in range(len(window.technical_names_table)):
-            kwargs[window.columns_table[i+1]] = _track[window.technical_names_table[i]][0] if \
-                window.technical_names_table[i] in _track else ''
-        kwargs['Image'] = ''
-        kwargs[window.columns_table[0]] = os.path.basename(file)
-        window.table.addRow(key=os.path.basename(file), **kwargs)
+            table_row[i + 2] = tk.Text(window.middle_frame, height=1, width=10)
+            table_row[i + 2].grid(row=index + 1, column=i + 3, sticky='ew')
+            table_row[i + 2].insert(tk.END, _track[window.technical_names_table[i]][0] if window.technical_names_table[
+                                                                                              i] in _track else '')
 
-        window.table.adjustColumnWidths()
+        # TODO: modify code to display embedded image
+        table_row[len(window.columns_table)] = tk.Text(window.middle_frame, height=1, width=10)
+        table_row[len(window.columns_table)].grid(row=index + 1, column=len(window.columns_table) + 1, sticky='ew')
+        table_row[0] = tk.Text(window.middle_frame, height=1, width=10)
+        table_row[0].grid(row=index + 1, column=1, sticky='ew')
+        table_row[0].insert(tk.END, str(index + 1))
+        table_row[1] = tk.Text(window.middle_frame, height=1, width=10)
+        table_row[1].grid(row=index + 1, column=2, sticky='ew')
+        table_row[1].insert(tk.END, os.path.basename(file))
+        window.table_values[index + 1] = table_row
 
 
 def open_folder(window):
@@ -141,6 +149,7 @@ def open_folder(window):
 
 
 def save_metadata(window):
+    # TODO: change save function to comply to new table
     msg_box = tk.messagebox.askyesno('Sauvegarder les modifications',
                                      'Êtes-vous sûr de vouloir sauvegarder vos modifications ?', icon='warning')
     if msg_box:
