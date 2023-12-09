@@ -22,5 +22,6 @@ class RootApplication:
         self.global_date_field = None
         self.global_composer_field = None
         self.global_interpret_field = None
-        self.global_image_value = None
+        self.global_image_path = None
+        self.global_image = None
 

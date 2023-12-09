@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+from PIL import ImageTk, Image
 
 
 def set_global_genre(window):
@@ -87,4 +88,12 @@ def set_global_image(window):
 
 
 def choose_global_image(window):
+    image_path = filedialog.askopenfilename(initialdir="D:/Musique/Icones")
+    if image_path:
+        window.global_image_path = image_path
+        image = Image.open(image_path)
+        print(int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height())
+        image = image.resize((int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()), Image.BILINEAR)
+        window.global_image = ImageTk.PhotoImage(image)
+        (tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2))
     return
