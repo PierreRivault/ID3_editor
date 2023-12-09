@@ -7,7 +7,8 @@ def set_global_genre(window):
     global_genre = window.global_genre_field.get()
     if global_genre:
         msg_box = tk.messagebox.askyesno('Définir un genre global',
-                                         'Êtes vous sûr de vouloir définir le genre de tous les fichiers sur ' + global_genre,
+                                         'Êtes vous sûr de vouloir définir le genre de tous les fichiers sur '
+                                         + global_genre,
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
@@ -23,7 +24,8 @@ def set_global_album(window):
     global_album = window.global_album_field.get("1.0", "end-1c")
     if global_album:
         msg_box = tk.messagebox.askyesno('Définir un album global',
-                                         'Êtes vous sûr de vouloir définir l\'album de tous les fichiers sur ' + global_album,
+                                         'Êtes vous sûr de vouloir définir l\'album de tous les fichiers sur '
+                                         + global_album,
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
@@ -39,7 +41,8 @@ def set_global_date(window):
     global_date = window.global_date_field.get("1.0", "end-1c")
     if global_date:
         msg_box = tk.messagebox.askyesno('Définir une date globale',
-                                         'Êtes vous sûr de vouloir définir la date de tous les fichiers sur ' + global_date,
+                                         'Êtes vous sûr de vouloir définir la date de tous les fichiers sur '
+                                         + global_date,
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
@@ -55,7 +58,8 @@ def set_global_composer(window):
     global_composer = window.global_composer_field.get("1.0", "end-1c")
     if global_composer:
         msg_box = tk.messagebox.askyesno('Définir un compositeur global',
-                                         'Êtes vous sûr de vouloir définir le compositeur de tous les fichiers sur ' + global_composer,
+                                         'Êtes vous sûr de vouloir définir le compositeur de tous les fichiers sur '
+                                         + global_composer,
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
@@ -71,7 +75,8 @@ def set_global_interpret(window):
     global_interpret = window.global_interpret_field.get("1.0", "end-1c")
     if global_interpret:
         msg_box = tk.messagebox.askyesno('Définir un interprète global',
-                                         'Êtes vous sûr de vouloir définir l\'interprète de tous les fichiers sur ' + global_interpret,
+                                         'Êtes vous sûr de vouloir définir l\'interprète de tous les fichiers sur '
+                                         + global_interpret,
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
@@ -93,7 +98,9 @@ def choose_global_image(window):
         window.global_image_path = image_path
         image = Image.open(image_path)
         print(int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height())
-        image = image.resize((int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()), Image.BILINEAR)
+        image = image.resize(
+            (int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()),
+            Image.BILINEAR)
         window.global_image = ImageTk.PhotoImage(image)
-        (tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2))
+        tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2)
     return
