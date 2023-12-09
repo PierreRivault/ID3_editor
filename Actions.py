@@ -12,7 +12,7 @@ from mutagen.id3 import ID3, APIC
 
 def init_window(window):
     window.root.title("MP3 Editor")
-    window.root.geometry('480x270')
+    window.root.geometry('1280x720')
 
     # Create a menu bar
     menubar = tk.Menu(window.root)
@@ -44,7 +44,7 @@ def init_window(window):
 
     # Create elements of the first frame, global values
     window.top_frame.grid_columnconfigure(0, weight=1)
-    window. top_frame.grid_columnconfigure(8, weight=1)
+    window.top_frame.grid_columnconfigure(8, weight=1)
     # Genre field and button
     window.global_genre_field = ttk.Combobox(window.top_frame, values=window.genre_table)
     window.global_genre_field.current(0)
@@ -111,8 +111,6 @@ def list_mp3_files(folder_var):
 
 
 def create_table(window):
-
-    # table.adjustColumnWidths()
     window.table.show()
 
     # List mp3 files in the folder
@@ -124,19 +122,14 @@ def create_table(window):
 
     for file in mp3_files:
         _track = EasyID3(file)
+        kwargs = {}
+        for i in range(len(window.technical_names_table)):
+            kwargs[window.columns_table[i+1]] = _track[window.technical_names_table[i]][0] if \
+                window.technical_names_table[i] in _track else ''
+        kwargs['Image'] = ''
+        window.table.addRow(key=os.path.basename(file), **kwargs)
 
-        window.table.addRow(
-            key=os.path.basename(file),
-            Nom_du_fichier=os.path.basename(file),
-            Titre=_track['title'][0] if 'title' in _track else '',
-            Genre=_track['genre'][0] if 'genre' in _track else '',
-            Album=_track['album'][0] if 'album' in _track else '',
-            Date=_track['date'][0] if 'date' in _track else '',
-            Compositeur=_track['composer'][0] if 'composer' in _track else '',
-            Interprète=_track['performer'][0] if 'performer' in _track else '',
-            Opus=_track['tracknumber'][0] if 'tracknumber' in _track else '',
-            Image=''
-        )
+    window.table.adjustColumnWidths()
 
 
 def open_folder(window):
@@ -166,8 +159,8 @@ def save_metadata(window):
                     os.rename(window.folder_var + '/' + filename,
                               window.folder_var + '/' + track['Titre'].strip() + ".mp3")
                     window.model.setRecName(track['Titre'].strip() + '.mp3', track_number)
-                    window.model.data[track['Titre'].strip() + '.mp3'][window.columns_table[0]] = track[
-                                                                                                      'Titre'].strip() + '.mp3'
+                    (window.model.data[track['Titre'].strip() + '.mp3']
+                    [window.columns_table[0]]) = track['Titre'].strip() + '.mp3'
                     window.table.redrawTable()
 
     return
