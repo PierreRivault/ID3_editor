@@ -129,7 +129,7 @@ def create_table(window):
         kwargs['Image'] = ''
         window.table.addRow(key=os.path.basename(file), **kwargs)
 
-    window.table.adjustColumnWidths()
+        window.table.adjustColumnWidths()
 
 
 def open_folder(window):
