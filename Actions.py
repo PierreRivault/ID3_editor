@@ -77,10 +77,10 @@ def init_window(window):
                                         command=lambda: Commands.set_global_interpret(window))
     global_interpret_button.grid(column=5, row=1, padx=10, pady=10)
     # Image choosing and setting button
-    global_image_choosing_button = tk.Button(window.top_frame, text='Définir l\'image globale',
+    global_image_choosing_button = tk.Button(window.top_frame, text='Choisir l\'image globale',
                                              command=lambda: Commands.choose_global_image(window))
     global_image_choosing_button.grid(column=6, row=0, padx=10, pady=10)
-    global_image_setting_button = tk.Button(window.top_frame, text='Définir le  global',
+    global_image_setting_button = tk.Button(window.top_frame, text='Définir l\'image globale',
                                             command=lambda: Commands.set_global_image(window))
     global_image_setting_button.grid(column=6, row=1, padx=10, pady=10)
 
@@ -127,6 +127,7 @@ def create_table(window):
             kwargs[window.columns_table[i+1]] = _track[window.technical_names_table[i]][0] if \
                 window.technical_names_table[i] in _track else ''
         kwargs['Image'] = ''
+        kwargs[window.columns_table[0]] = os.path.basename(file)
         window.table.addRow(key=os.path.basename(file), **kwargs)
 
         window.table.adjustColumnWidths()
