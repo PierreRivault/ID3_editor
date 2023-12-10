@@ -14,6 +14,7 @@ class RootApplication:
         self.folder_var = ""
         self.model = TableModel()
         self.root = tk.Tk()
+        self.row_count = 0
         self.table = None
         self.top_frame = None
         self.middle_frame = None
@@ -27,3 +28,5 @@ class RootApplication:
         self.global_image_path = None
         self.global_image = None
         self.table_values = {}
+        self.original_image_table = {}
+        self.image_table = {}

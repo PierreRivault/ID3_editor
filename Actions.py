@@ -1,10 +1,12 @@
+import mutagen
 import Commands
-
 import glob
 import os
+from io import BytesIO
 from mutagen.easyid3 import EasyID3
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+from PIL import ImageTk, Image
 
 from mutagen.id3 import ID3, APIC
 
@@ -86,14 +88,11 @@ def init_window(window):
     # Create elements of the second frame
     # Create the table canvas
     table_headers = {}
-    for i in range(len(window.columns_table)):
-        table_headers[i] = (ttk.Label(window.middle_frame, text=window.columns_table[i], relief='solid')
-                            .grid(column=i + 2, row=0, sticky='ew'))
-        window.middle_frame.grid_columnconfigure(i, weight=window.columns_table_weight[i])
-    window.middle_frame.grid_columnconfigure(0, weight=window.columns_table_weight[0])
-    window.middle_frame.grid_columnconfigure(1, weight=window.columns_table_weight[1])
-    window.middle_frame.grid_columnconfigure(len(window.columns_table) + 2,
-                                             weight=window.columns_table_weight[len(window.columns_table) + 2])
+    for index, head_name in enumerate(window.columns_table):
+        table_headers[head_name] = ttk.Label(window.middle_frame, text=window.columns_table[index], relief='solid')
+        table_headers[head_name].grid(column=index + 2, row=0, sticky='ew')
+    for index in range(len(window.columns_table_weight)):
+        window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index])
     window.table_values[0] = table_headers
     # Create elements of the third frame, commands
     save_button = tk.Button(window.bottom_frame, text="Sauvegarder", command=lambda: save_metadata(window))
@@ -113,6 +112,7 @@ def list_mp3_files(folder_var):
 
 
 def create_table(window):
+    # TODO: refactor create table according to dict variable names
     # List mp3 files in the folder
     mp3_files = list_mp3_files(window.folder_var)
 
@@ -123,22 +123,38 @@ def create_table(window):
     for index, file in enumerate(mp3_files):
         _track = EasyID3(file)
         table_row = {}
-        for i in range(len(window.technical_names_table)):
-            table_row[i + 2] = tk.Text(window.middle_frame, height=1, width=10)
-            table_row[i + 2].grid(row=index + 1, column=i + 3, sticky='ew')
-            table_row[i + 2].insert(tk.END, _track[window.technical_names_table[i]][0] if window.technical_names_table[
-                                                                                              i] in _track else '')
-
-        # TODO: modify code to display embedded image
-        table_row[len(window.columns_table)] = tk.Text(window.middle_frame, height=1, width=10)
-        table_row[len(window.columns_table)].grid(row=index + 1, column=len(window.columns_table) + 1, sticky='ew')
-        table_row[0] = tk.Text(window.middle_frame, height=1, width=10)
-        table_row[0].grid(row=index + 1, column=1, sticky='ew')
-        table_row[0].insert(tk.END, str(index + 1))
-        table_row[1] = tk.Text(window.middle_frame, height=1, width=10)
-        table_row[1].grid(row=index + 1, column=2, sticky='ew')
-        table_row[1].insert(tk.END, os.path.basename(file))
+        # Load metadata included in technical_names_table
+        for head_index, head_name in enumerate(window.technical_names_table):
+            table_row[head_name] = tk.Text(window.middle_frame, height=1, width=10)
+            table_row[head_name].grid(row=index + 1, column=head_index + 3, sticky='ew')
+            table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
+            window.technical_names_table[head_index] in _track else '')
+        # Load image
+        audio = ID3(file)
+        if audio.get("APIC:"):
+            raw_album = audio.get("APIC:").data
+            window.original_image_table[index] = Image.open(BytesIO(raw_album))
+            album = (window.original_image_table[index].resize(
+                (window.table_values[0]['Image'].winfo_width(),
+                 int(window.original_image_table[index].height * window.table_values[0][
+                     'Image'].winfo_width() / window.original_image_table[index].width)),
+                Image.BILINEAR))
+            window.image_table[index] = ImageTk.PhotoImage(album)
+            table_row['image'] = tk.Label(window.middle_frame, image=window.image_table[index])
+            table_row['image'].grid(row=index + 1, column=len(window.columns_table) + 1)
+        # Add index
+        table_row['Index'] = tk.Text(window.middle_frame, height=1, width=10)
+        table_row['Index'].grid(row=index + 1, column=1, sticky='ew')
+        table_row['Index'].insert(tk.END, str(index + 1))
+        table_row['Index'].config(state=tk.DISABLED)
+        # Add filename
+        table_row['Filename'] = tk.Text(window.middle_frame, height=1, width=10)
+        table_row['Filename'].grid(row=index + 1, column=2, sticky='ew')
+        table_row['Filename'].insert(tk.END, os.path.basename(file))
+        table_row['Filename'].config(state=tk.DISABLED)
         window.table_values[index + 1] = table_row
+        window.row_count += 1
+    return
 
 
 def open_folder(window):
@@ -149,28 +165,32 @@ def open_folder(window):
 
 
 def save_metadata(window):
-    # TODO: change save function to comply to new table
     msg_box = tk.messagebox.askyesno('Sauvegarder les modifications',
                                      'Êtes-vous sûr de vouloir sauvegarder vos modifications ?', icon='warning')
     if msg_box:
-        for track_number in range(window.model.getRowCount()):
-            filename = window.model.getRecName(track_number)
-            track = window.model.getRecordAtRow(track_number)
-            file = EasyID3(window.folder_var + '/' + filename)
-            for i in range(len(window.columns_table)):
-                if i == 0 or i == len(window.columns_table) - 1:
-                    continue
-                file[window.technical_names_table[i - 1]] = track[window.columns_table[i]].strip()
-                if window.technical_names_table[i - 1] == 'performer':
-                    file['artist'] = track[window.columns_table[i]].strip()
-            file.save()
-            if track['Titre']:
-                if window.model.getRecName(track_number).strip() != track['Titre'].strip() + '.mp3':
-                    os.rename(window.folder_var + '/' + filename,
-                              window.folder_var + '/' + track['Titre'].strip() + ".mp3")
-                    window.model.setRecName(track['Titre'].strip() + '.mp3', track_number)
-                    (window.model.data[track['Titre'].strip() + '.mp3']
-                    [window.columns_table[0]]) = track['Titre'].strip() + '.mp3'
-                    window.table.redrawTable()
+        for track_number in range(window.row_count):
+            filename = window.table_values[track_number + 1]['Filename'].get("1.0", "end-1c")
+            try:
+                file = EasyID3(window.folder_var + '/' + filename)
+                # metadata saving
+                for head in window.technical_names_table:
+                    file[head] = window.table_values[track_number + 1][head].get(
+                        "1.0", "end-1c").strip()
+                    # Save artist value also in performer to be compatible with more systems
+                    if head == 'artist':
+                        file['performer'] = window.table_values[track_number + 1][head].get("1.0", "end-1c").strip()
+                file.save()
+                # filename saving
+                title = window.table_values[track_number + 1]['title'].get("1.0", "end-1c")
+                if title:
+                    if window.table_values[track_number + 1]['Filename'] != title + '.mp3':
+                        os.rename(window.folder_var + '/' + filename, window.folder_var + '/' + title + '.mp3')
+                        window.table_values[track_number + 1]['Filename'].config(state=tk.NORMAL)
+                        window.table_values[track_number + 1]['Filename'].delete("1.0", tk.END)
+                        window.table_values[track_number + 1]['Filename'].insert(tk.END, title + '.mp3')
+                        window.table_values[track_number + 1]['Filename'].config(state=tk.DISABLED)
+                # TODO: image saving
+            except mutagen.MutagenError:
+                tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')
 
     return
