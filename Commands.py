@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 from PIL import ImageTk, Image
 
 
@@ -90,21 +90,21 @@ def set_global_interpret(window):
 
 def set_global_image(window):
     if window.global_image_path:
-        global_image = Image.open(window.global_image_path)
-        if global_image:
-            album = (global_image.resize(
-                (window.table_values[0][len(window.columns_table) - 1].winfo_width(),
-                 int(global_image.height * window.table_values[0][
-                     len(window.columns_table) - 1].winfo_width() / global_image.width)),
-                Image.BILINEAR))
+        try:
+            global_image = Image.open(window.global_image_path)
+            album = (global_image.resize((window.table_values[0]['Image'].winfo_width(),
+                                          int(global_image.height * window.table_values[0][
+                                              'Image'].winfo_width() / global_image.width)),
+                                         Image.BILINEAR))
             for row_number in range(window.row_count):
                 window.original_image_table[row_number] = global_image
                 window.image_table[row_number] = ImageTk.PhotoImage(album)
-                window.table_values[row_number + 1][len(window.columns_table)] = tk.Label(window.middle_frame,
-                                                                                          image=window.image_table[
-                                                                                              row_number])
-                window.table_values[row_number + 1][len(window.columns_table)].grid(row=row_number + 1, column=len(
-                    window.columns_table) + 1)
+                window.table_values[row_number + 1]['Image'] = tk.Label(window.middle_frame,
+                                                                        image=window.image_table[row_number])
+                window.table_values[row_number + 1]['Image'].grid(row=row_number + 1,
+                                                                  column=len(window.columns_table) + 1)
+        except IOError:
+            tk.messagebox.showerror('Image not found', 'The global image provided was not found')
     else:
         tk.messagebox.showinfo('No global image provided',
                                'No global image is selected, please select one before proceeding')

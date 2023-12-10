@@ -1,3 +1,5 @@
+import io
+
 import mutagen
 import Commands
 import glob
@@ -112,13 +114,14 @@ def list_mp3_files(folder_var):
 
 
 def create_table(window):
-    # TODO: refactor create table according to dict variable names
     # List mp3 files in the folder
     mp3_files = list_mp3_files(window.folder_var)
 
     if not mp3_files:
         tk.messagebox.showinfo("No mp3 file found", "No mp3 file was found in the provided directory")
         return
+
+    window.row_count = 0
 
     for index, file in enumerate(mp3_files):
         _track = EasyID3(file)
@@ -128,7 +131,7 @@ def create_table(window):
             table_row[head_name] = tk.Text(window.middle_frame, height=1, width=10)
             table_row[head_name].grid(row=index + 1, column=head_index + 3, sticky='ew')
             table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
-            window.technical_names_table[head_index] in _track else '')
+                                        window.technical_names_table[head_index] in _track else '')
         # Load image
         audio = ID3(file)
         if audio.get("APIC:"):
@@ -164,6 +167,16 @@ def open_folder(window):
         create_table(window)  # Call create_table after setting folder_var
 
 
+def image_to_byte_array(image: Image) -> bytes:
+    # BytesIO is a file-like buffer stored in memory
+    imgbytearr = io.BytesIO()
+    # image.save expects a file-like as an argument
+    image.save(imgbytearr, format=image.format)
+    # Turn the BytesIO object back into a bytes object
+    imgbytearr = imgbytearr.getvalue()
+    return imgbytearr
+
+
 def save_metadata(window):
     msg_box = tk.messagebox.askyesno('Sauvegarder les modifications',
                                      'Êtes-vous sûr de vouloir sauvegarder vos modifications ?', icon='warning')
@@ -189,8 +202,13 @@ def save_metadata(window):
                         window.table_values[track_number + 1]['Filename'].delete("1.0", tk.END)
                         window.table_values[track_number + 1]['Filename'].insert(tk.END, title + '.mp3')
                         window.table_values[track_number + 1]['Filename'].config(state=tk.DISABLED)
-                # TODO: image saving
-            except mutagen.MutagenError:
+                # Image saving
+                audio = ID3(window.folder_var + '/' + filename)
+                audio.delall('APIC')
+                audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
+                               data=image_to_byte_array(window.original_image_table[track_number])))
+                audio.save(v2_version=3)
+            except mutagen.MutagenError as err:
                 tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')
 
     return
