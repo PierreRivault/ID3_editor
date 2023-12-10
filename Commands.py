@@ -101,13 +101,15 @@ def set_global_image(window):
                                           int(global_image.height * window.table_values[0][
                                               'Image'].winfo_width() / global_image.width)),
                                          Image.BILINEAR))
+            print('old: ', window.table_values[0]['Image'].winfo_width())
             for row_number in range(window.row_count):
                 window.original_image_table[row_number] = global_image
                 window.image_table[row_number] = ImageTk.PhotoImage(album)
                 window.table_values[row_number + 1]['Image'] = tk.Label(window.middle_frame,
                                                                         image=window.image_table[row_number])
                 window.table_values[row_number + 1]['Image'].grid(row=row_number + 1,
-                                                                  column=len(window.columns_table) + 1)
+                                                                  column=len(window.columns_table))
+            print('new: ', window.table_values[0]['Image'].winfo_width())
         except IOError:
             tk.messagebox.showerror('Image not found', 'The global image provided was not found')
     else:
@@ -120,16 +122,31 @@ def choose_global_image(window):
     image_path = filedialog.askopenfilename(initialdir="D:/Musique/Icones")
     if image_path:
         window.global_image_path = image_path
-        image = Image.open(image_path)
-        if image:
+        try:
+            image = Image.open(image_path)
             image = image.resize(
                 (int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()),
                 Image.BILINEAR)
             window.global_image = ImageTk.PhotoImage(image)
             tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2)
+        except IOError:
+            tk.messagebox.showerror('Image not found', 'The provided image could not be loaded')
     return
 
 
 def change_image(window, index):
+    image_path = filedialog.askopenfilename(initialdir="D:/Musique/Icones")
+    if image_path:
+        try:
+            image = Image.open(image_path)
+            window.original_image_table[index] = image
+            thumbnail = (image.resize((window.table_values[0]['Image'].winfo_width(),
+                                      int(image.height * window.table_values[0][
+                                          'Image'].winfo_width() / image.width)), Image.BILINEAR))
+            window.image_table[index] = ImageTk.PhotoImage(thumbnail)
+            window.table_values[index + 1]['Image'] = tk.Label(window.middle_frame, image=window.image_table[index])
+            window.table_values[index + 1]['Image'].grid(row=index + 1, column=len(window.columns_table))
+        except IOError:
+            tk.messagebox.showerror('Image not found', 'The provided image could not be loaded')
 
     return

@@ -40,6 +40,7 @@ def init_window(window):
     # Create the second frame
     window.middle_frame = tk.Frame(window.root)
     window.middle_frame.grid(row=1, column=0, sticky='nsew')
+    window.middle_frame.grid_propagate(False)
 
     # Create the third frame
     window.bottom_frame = tk.Frame(window.root)
@@ -135,15 +136,24 @@ def create_table(window):
         # Load image
         audio = ID3(file)
         if audio.get("APIC:"):
+            # print('head: ', window.table_values[0]['Image'].winfo_width())
+            # table_row['image_container'] = tk.Frame(window.middle_frame,
+            #                                        width=window.table_values[0]['Image'].winfo_width())
+            # print('before: ', table_row['image_container'].winfo_width())
+            # table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
             raw_album = audio.get("APIC:").data
             window.original_image_table[index] = Image.open(BytesIO(raw_album))
+            # print('after: ', table_row['image_container'].winfo_width())
             album = (window.original_image_table[index].resize(
                 (window.table_values[0]['Image'].winfo_width(),
-                 int(window.original_image_table[index].height * window.table_values[0][
-                     'Image'].winfo_width() / window.original_image_table[index].width)),
+                 int(window.original_image_table[index].height * window.table_values[0]['Image'].winfo_width() /
+                     window.original_image_table[index].width)),
                 Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(album)
-            table_row['image'] = tk.Label(window.middle_frame, image=window.image_table[index])
+            table_row['image'] = tk.Label(window.middle_frame, image=window.image_table[index], bg='red')
+            # table_row['image'].grid_propagate(False)
+            # table_row['image'].pack_propagate(False)
+            # table_row['image'].pack(fill=tk.BOTH, expand=True)
             table_row['image'].grid(row=index + 1, column=len(window.columns_table))
         # Add index
         table_row['Index'] = tk.Text(window.middle_frame, height=1, width=1)
@@ -157,7 +167,8 @@ def create_table(window):
         table_row['Filename'].config(state=tk.DISABLED)
         # Add change image button
         table_row['Change_image'] = tk.Button(window.middle_frame, text='Change',
-                                              command=lambda: Commands.change_image(window, index + 1))
+                                              command=lambda image_index=index: Commands.change_image(window,
+                                                                                                      image_index))
         table_row['Change_image'].grid(row=index + 1, column=len(window.columns_table) + 1)
         window.table_values[index + 1] = table_row
         window.row_count += 1
