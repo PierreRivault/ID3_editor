@@ -12,11 +12,12 @@ def set_global_genre(window):
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
-            if hasattr(window.table, 'tablerowheader') and hasattr(window.table, 'tablecolheader'):
-                for row_number in range(window.model.getRowCount()):
-                    window.model.data[window.model.getRecName(row_number).strip()][
-                        window.columns_table[2]] = global_genre
-                window.table.redrawTable()
+            if window.row_count > 0:
+                for row_number in range(window.row_count):
+                    window.table_values[row_number + 1]['genre'].delete("1.0", tk.END)
+                    window.table_values[row_number + 1]['genre'].insert(tk.END, global_genre)
+            else:
+                tk.messagebox.showinfo('No folder loaded', 'Please open files before setting a global value')
     return
 
 
@@ -29,11 +30,12 @@ def set_global_album(window):
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
-            if hasattr(window.table, 'tablerowheader') and hasattr(window.table, 'tablecolheader'):
-                for row_number in range(window.model.getRowCount()):
-                    window.model.data[window.model.getRecName(row_number).strip()][
-                        window.columns_table[3]] = global_album
-                window.table.redrawTable()
+            if window.row_count > 0:
+                for row_number in range(window.row_count):
+                    window.table_values[row_number + 1]['album'].delete("1.0", tk.END)
+                    window.table_values[row_number + 1]['album'].insert(tk.END, global_album)
+            else:
+                tk.messagebox.showinfo('No folder loaded', 'Please open files before setting a global value')
     return
 
 
@@ -46,11 +48,12 @@ def set_global_date(window):
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
-            if hasattr(window.table, 'tablerowheader') and hasattr(window.table, 'tablecolheader'):
-                for row_number in range(window.model.getRowCount()):
-                    window.model.data[window.model.getRecName(row_number).strip()][
-                        window.columns_table[4]] = global_date
-                window.table.redrawTable()
+            if window.row_count > 0:
+                for row_number in range(window.row_count):
+                    window.table_values[row_number + 1]['date'].delete("1.0", tk.END)
+                    window.table_values[row_number + 1]['date'].insert(tk.END, global_date)
+            else:
+                tk.messagebox.showinfo('No folder loaded', 'Please open files before setting a global value')
     return
 
 
@@ -63,11 +66,12 @@ def set_global_composer(window):
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
-            if hasattr(window.table, 'tablerowheader') and hasattr(window.table, 'tablecolheader'):
-                for row_number in range(window.model.getRowCount()):
-                    window.model.data[window.model.getRecName(row_number).strip()][
-                        window.columns_table[5]] = global_composer
-                window.table.redrawTable()
+            if window.row_count > 0:
+                for row_number in range(window.row_count):
+                    window.table_values[row_number + 1]['composer'].delete("1.0", tk.END)
+                    window.table_values[row_number + 1]['composer'].insert(tk.END, global_composer)
+            else:
+                tk.messagebox.showinfo('No folder loaded', 'Please open files before setting a global value')
     return
 
 
@@ -80,11 +84,12 @@ def set_global_interpret(window):
                                          icon='warning')
         if msg_box:
             # Check if the table is initiated
-            if hasattr(window.table, 'tablerowheader') and hasattr(window.table, 'tablecolheader'):
-                for row_number in range(window.model.getRowCount()):
-                    window.model.data[window.model.getRecName(row_number).strip()][
-                        window.columns_table[6]] = global_interpret
-                window.table.redrawTable()
+            if window.row_count > 0:
+                for row_number in range(window.row_count):
+                    window.table_values[row_number + 1]['artist'].delete("1.0", tk.END)
+                    window.table_values[row_number + 1]['artist'].insert(tk.END, global_interpret)
+            else:
+                tk.messagebox.showinfo('No folder loaded', 'Please open files before setting a global value')
     return
 
 

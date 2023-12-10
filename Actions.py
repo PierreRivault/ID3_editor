@@ -208,7 +208,7 @@ def save_metadata(window):
                 audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
                                data=image_to_byte_array(window.original_image_table[track_number])))
                 audio.save(v2_version=3)
-            except mutagen.MutagenError as err:
+            except mutagen.MutagenError:
                 tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')
 
     return
