@@ -128,3 +128,8 @@ def choose_global_image(window):
             window.global_image = ImageTk.PhotoImage(image)
             tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2)
     return
+
+
+def change_image(window, index):
+
+    return

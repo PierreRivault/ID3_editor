@@ -92,7 +92,7 @@ def init_window(window):
     table_headers = {}
     for index, head_name in enumerate(window.columns_table):
         table_headers[head_name] = ttk.Label(window.middle_frame, text=window.columns_table[index], relief='solid')
-        table_headers[head_name].grid(column=index + 2, row=0, sticky='ew')
+        table_headers[head_name].grid(column=index + 1, row=0, sticky='ew')
     for index in range(len(window.columns_table_weight)):
         window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index])
     window.table_values[0] = table_headers
@@ -128,8 +128,8 @@ def create_table(window):
         table_row = {}
         # Load metadata included in technical_names_table
         for head_index, head_name in enumerate(window.technical_names_table):
-            table_row[head_name] = tk.Text(window.middle_frame, height=1, width=10)
-            table_row[head_name].grid(row=index + 1, column=head_index + 3, sticky='ew')
+            table_row[head_name] = tk.Text(window.middle_frame, height=1, width=1)
+            table_row[head_name].grid(row=index + 1, column=head_index + 2, sticky='ew')
             table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
                                         window.technical_names_table[head_index] in _track else '')
         # Load image
@@ -144,17 +144,21 @@ def create_table(window):
                 Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(album)
             table_row['image'] = tk.Label(window.middle_frame, image=window.image_table[index])
-            table_row['image'].grid(row=index + 1, column=len(window.columns_table) + 1)
+            table_row['image'].grid(row=index + 1, column=len(window.columns_table))
         # Add index
-        table_row['Index'] = tk.Text(window.middle_frame, height=1, width=10)
-        table_row['Index'].grid(row=index + 1, column=1, sticky='ew')
+        table_row['Index'] = tk.Text(window.middle_frame, height=1, width=1)
+        table_row['Index'].grid(row=index + 1, column=0, sticky='ew')
         table_row['Index'].insert(tk.END, str(index + 1))
         table_row['Index'].config(state=tk.DISABLED)
         # Add filename
-        table_row['Filename'] = tk.Text(window.middle_frame, height=1, width=10)
-        table_row['Filename'].grid(row=index + 1, column=2, sticky='ew')
+        table_row['Filename'] = tk.Text(window.middle_frame, height=1, width=1)
+        table_row['Filename'].grid(row=index + 1, column=1, sticky='ew')
         table_row['Filename'].insert(tk.END, os.path.basename(file))
         table_row['Filename'].config(state=tk.DISABLED)
+        # Add change image button
+        table_row['Change_image'] = tk.Button(window.middle_frame, text='Change',
+                                              command=lambda: Commands.change_image(window, index + 1))
+        table_row['Change_image'].grid(row=index + 1, column=len(window.columns_table) + 1)
         window.table_values[index + 1] = table_row
         window.row_count += 1
     return
