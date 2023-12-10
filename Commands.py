@@ -89,6 +89,25 @@ def set_global_interpret(window):
 
 
 def set_global_image(window):
+    if window.global_image_path:
+        global_image = Image.open(window.global_image_path)
+        if global_image:
+            album = (global_image.resize(
+                (window.table_values[0][len(window.columns_table) - 1].winfo_width(),
+                 int(global_image.height * window.table_values[0][
+                     len(window.columns_table) - 1].winfo_width() / global_image.width)),
+                Image.BILINEAR))
+            for row_number in range(window.row_count):
+                window.original_image_table[row_number] = global_image
+                window.image_table[row_number] = ImageTk.PhotoImage(album)
+                window.table_values[row_number + 1][len(window.columns_table)] = tk.Label(window.middle_frame,
+                                                                                          image=window.image_table[
+                                                                                              row_number])
+                window.table_values[row_number + 1][len(window.columns_table)].grid(row=row_number + 1, column=len(
+                    window.columns_table) + 1)
+    else:
+        tk.messagebox.showinfo('No global image provided',
+                               'No global image is selected, please select one before proceeding')
     return
 
 
@@ -97,10 +116,10 @@ def choose_global_image(window):
     if image_path:
         window.global_image_path = image_path
         image = Image.open(image_path)
-        print(int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height())
-        image = image.resize(
-            (int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()),
-            Image.BILINEAR)
-        window.global_image = ImageTk.PhotoImage(image)
-        tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2)
+        if image:
+            image = image.resize(
+                (int(image.width * window.top_frame.winfo_height() / image.height), window.top_frame.winfo_height()),
+                Image.BILINEAR)
+            window.global_image = ImageTk.PhotoImage(image)
+            tk.Label(window.top_frame, image=window.global_image).grid(row=0, column=7, rowspan=2)
     return
