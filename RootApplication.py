@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkintertable import TableModel
 
 
 class RootApplication:
@@ -11,22 +10,31 @@ class RootApplication:
     technical_names_table = ['title', 'genre', 'album', 'date', 'composer', 'artist', 'tracknumber']
 
     def __init__(self):
-        self.folder_var = ""
-        self.model = TableModel()
+        # Main window
         self.root = tk.Tk()
-        self.row_count = 0
-        self.table = None
+        # 3 frames of the main window
         self.top_frame = None
         self.middle_frame = None
         self.bottom_frame = None
+        # Menu
         self.menu = None
+        # Table of all the cells of the grid
+        self.table_values = {}
+        # Table of the full size images that will be embedded in files when saving
+        self.original_image_table = {}
+        # Table of the image shown in the window
+        self.image_table = {}
+        # Folder opened path
+        self.folder_var = ""
+        # Number of rows in the cell
+        self.row_count = 0
+        # global text fields
         self.global_genre_field = None
         self.global_album_field = None
         self.global_date_field = None
         self.global_composer_field = None
         self.global_interpret_field = None
+        # global image field
         self.global_image_path = None
+        # global image shown in the window
         self.global_image = None
-        self.table_values = {}
-        self.original_image_table = {}
-        self.image_table = {}
