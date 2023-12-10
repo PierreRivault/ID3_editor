@@ -193,6 +193,12 @@ def save_metadata(window):
                     if head == 'artist':
                         file['performer'] = window.table_values[track_number + 1][head].get("1.0", "end-1c").strip()
                 file.save()
+                # Image saving
+                audio = ID3(window.folder_var + '/' + filename)
+                audio.delall('APIC')
+                audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
+                               data=image_to_byte_array(window.original_image_table[track_number])))
+                audio.save(v2_version=3)
                 # filename saving
                 title = window.table_values[track_number + 1]['title'].get("1.0", "end-1c")
                 if title:
@@ -202,12 +208,6 @@ def save_metadata(window):
                         window.table_values[track_number + 1]['Filename'].delete("1.0", tk.END)
                         window.table_values[track_number + 1]['Filename'].insert(tk.END, title + '.mp3')
                         window.table_values[track_number + 1]['Filename'].config(state=tk.DISABLED)
-                # Image saving
-                audio = ID3(window.folder_var + '/' + filename)
-                audio.delall('APIC')
-                audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
-                               data=image_to_byte_array(window.original_image_table[track_number])))
-                audio.save(v2_version=3)
             except mutagen.MutagenError:
                 tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')
 
