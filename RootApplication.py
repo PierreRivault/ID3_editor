@@ -16,6 +16,10 @@ class RootApplication:
         self.top_frame = None
         self.middle_frame = None
         self.bottom_frame = None
+        # Canvas of the second frame
+        self.canvas = None
+        # Scrollbar
+        self.scrollbar = None
         # Menu
         self.menu = None
         # Table of all the cells of the grid

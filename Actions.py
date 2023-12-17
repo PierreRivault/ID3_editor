@@ -35,18 +35,36 @@ def init_window(window):
 
     # Create the first frame
     window.top_frame = tk.Frame(window.root)
-    window.top_frame.grid(row=0, column=0, sticky='nsew')
+    window.top_frame.grid(row=0, column=0, sticky='nsew', columnspan=2)
 
     # Create the second frame
-    window.middle_frame = tk.Frame(window.root)
-    window.middle_frame.grid(row=1, column=0, sticky='nsew')
-    window.middle_frame.grid_propagate(False)
+    # Create the canvas
+    window.canvas = tk.Canvas(window.root)
+    # Create the frame in the canvas
+    window.middle_frame = tk.Frame(window.canvas)
+    # Create the scrollbar
+    window.scrollbar = tk.Scrollbar(window.root, orient=tk.VERTICAL, command=window.canvas.yview)
+    # Bind the scrollbar to the canvas
+    window.canvas.configure(yscrollcommand=window.scrollbar.set)
+    # Grid the canvas
+    window.canvas.grid(row=1, column=0, sticky='nsew')
+    # Pack the scrollbar on the right
+    window.scrollbar.grid(row=1, column=1, sticky="ns")
+    # Create the canvas view window
+    window.canvas.create_window((0, 0), window=window.middle_frame, anchor='nw')
+    # Bind events on new elements and on canvas resizing
+    window.middle_frame.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+    window.canvas.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+
+    # Manage second frame geometry
+    window.middle_frame.pack(expand=True, fill=tk.BOTH)
+    # Set grid weights
     for index in range(len(window.columns_table_weight)):
         window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index], uniform='1')
 
     # Create the third frame
     window.bottom_frame = tk.Frame(window.root)
-    window.bottom_frame.grid(row=2, column=0, sticky='nsew')
+    window.bottom_frame.grid(row=2, column=0, sticky='nsew', columnspan=2)
 
     # Create elements of the first frame, global values
     window.top_frame.grid_columnconfigure(0, weight=1)
@@ -167,8 +185,14 @@ def create_table(window):
         table_row['Change_image'].grid(row=index + 1, column=len(window.columns_table) + 1)
         window.table_values[index + 1] = table_row
         window.row_count += 1
+    on_configure(window.canvas)
     return
 
+
+def on_configure(canvas):
+    # update scrollregion after starting 'mainloop'
+    # when all widgets are in canvas
+    canvas.configure(scrollregion=canvas.bbox('all'))
 
 def open_folder(window):
     folder_path = filedialog.askdirectory()
