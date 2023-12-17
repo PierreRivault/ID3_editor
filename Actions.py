@@ -135,8 +135,7 @@ def create_table(window):
                                         window.technical_names_table[head_index] in _track else '')
         # Load image
         table_row['image_container'] = tk.Frame(window.middle_frame,
-                                                width=window.table_values[0]['Image'].winfo_width(),
-                                                bg='blue')
+                                                width=window.table_values[0]['Image'].winfo_width())
         table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
         table_row['image_container'].grid_propagate(False)
         audio = ID3(file)
@@ -149,9 +148,8 @@ def create_table(window):
                      window.original_image_table[index].width)),
                 Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(album)
-            table_row['image'] = tk.Label(table_row['image_container'], image=window.image_table[index], bg='red')
+            table_row['image'] = tk.Label(table_row['image_container'], image=window.image_table[index])
             table_row['image'].pack()
-            # table_row['image'].grid(row=index + 1, column=len(window.columns_table))
         # Add index
         table_row['Index'] = tk.Text(window.middle_frame, height=1, width=1)
         table_row['Index'].grid(row=index + 1, column=0, sticky='ew')
@@ -176,7 +174,8 @@ def open_folder(window):
     folder_path = filedialog.askdirectory()
     if folder_path:
         window.folder_var = folder_path
-        create_table(window)  # Call create_table after setting folder_var
+        # Call create_table after setting folder_var
+        create_table(window)
 
 
 def image_to_byte_array(image: Image) -> bytes:
