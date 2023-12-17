@@ -6,7 +6,7 @@ class RootApplication:
                    "Song", "Epic Music", "Jazz", "National Anthem"]
     columns_table = ['Nom du fichier', 'Titre', 'Genre', 'Album', 'Date', 'Compositeur', 'Interprète', 'Opus',
                      'Image']
-    columns_table_weight = [1, 4, 4, 2, 4, 1, 3, 3, 1, 2, 0]
+    columns_table_weight = [0, 4, 4, 2, 4, 1, 3, 3, 1, 2, 0]
     technical_names_table = ['title', 'genre', 'album', 'date', 'composer', 'artist', 'tracknumber']
 
     def __init__(self):

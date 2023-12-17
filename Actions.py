@@ -41,6 +41,8 @@ def init_window(window):
     window.middle_frame = tk.Frame(window.root)
     window.middle_frame.grid(row=1, column=0, sticky='nsew')
     window.middle_frame.grid_propagate(False)
+    for index in range(len(window.columns_table_weight)):
+        window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index], uniform='1')
 
     # Create the third frame
     window.bottom_frame = tk.Frame(window.root)
@@ -94,8 +96,6 @@ def init_window(window):
     for index, head_name in enumerate(window.columns_table):
         table_headers[head_name] = ttk.Label(window.middle_frame, text=window.columns_table[index], relief='solid')
         table_headers[head_name].grid(column=index + 1, row=0, sticky='ew')
-    for index in range(len(window.columns_table_weight)):
-        window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index])
     window.table_values[0] = table_headers
     # Create elements of the third frame, commands
     save_button = tk.Button(window.bottom_frame, text="Sauvegarder", command=lambda: save_metadata(window))
@@ -134,27 +134,24 @@ def create_table(window):
             table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
                                         window.technical_names_table[head_index] in _track else '')
         # Load image
+        table_row['image_container'] = tk.Frame(window.middle_frame,
+                                                width=window.table_values[0]['Image'].winfo_width(),
+                                                bg='blue')
+        table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
+        table_row['image_container'].grid_propagate(False)
         audio = ID3(file)
         if audio.get("APIC:"):
-            # print('head: ', window.table_values[0]['Image'].winfo_width())
-            # table_row['image_container'] = tk.Frame(window.middle_frame,
-            #                                        width=window.table_values[0]['Image'].winfo_width())
-            # print('before: ', table_row['image_container'].winfo_width())
-            # table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
             raw_album = audio.get("APIC:").data
             window.original_image_table[index] = Image.open(BytesIO(raw_album))
-            # print('after: ', table_row['image_container'].winfo_width())
             album = (window.original_image_table[index].resize(
                 (window.table_values[0]['Image'].winfo_width(),
                  int(window.original_image_table[index].height * window.table_values[0]['Image'].winfo_width() /
                      window.original_image_table[index].width)),
                 Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(album)
-            table_row['image'] = tk.Label(window.middle_frame, image=window.image_table[index], bg='red')
-            # table_row['image'].grid_propagate(False)
-            # table_row['image'].pack_propagate(False)
-            # table_row['image'].pack(fill=tk.BOTH, expand=True)
-            table_row['image'].grid(row=index + 1, column=len(window.columns_table))
+            table_row['image'] = tk.Label(table_row['image_container'], image=window.image_table[index], bg='red')
+            table_row['image'].pack()
+            # table_row['image'].grid(row=index + 1, column=len(window.columns_table))
         # Add index
         table_row['Index'] = tk.Text(window.middle_frame, height=1, width=1)
         table_row['Index'].grid(row=index + 1, column=0, sticky='ew')

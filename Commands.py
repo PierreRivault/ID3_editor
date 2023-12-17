@@ -93,6 +93,7 @@ def set_global_interpret(window):
     return
 
 
+# noinspection DuplicatedCode
 def set_global_image(window):
     if window.global_image_path:
         try:
@@ -134,6 +135,7 @@ def choose_global_image(window):
     return
 
 
+# noinspection DuplicatedCode
 def change_image(window, index):
     image_path = filedialog.askopenfilename(initialdir="D:/Musique/Icones")
     if image_path:
@@ -144,8 +146,12 @@ def change_image(window, index):
                                       int(image.height * window.table_values[0][
                                           'Image'].winfo_width() / image.width)), Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(thumbnail)
-            window.table_values[index + 1]['Image'] = tk.Label(window.middle_frame, image=window.image_table[index])
-            window.table_values[index + 1]['Image'].grid(row=index + 1, column=len(window.columns_table))
+            # Remove old image from the GUI
+            for children in window.table_values[index + 1]['image_container'].winfo_children():
+                children.destroy()
+            window.table_values[index + 1]['Image'] = tk.Label(window.table_values[index + 1]['image_container'],
+                                                               image=window.image_table[index])
+            window.table_values[index + 1]['Image'].pack()
         except IOError:
             tk.messagebox.showerror('Image not found', 'The provided image could not be loaded')
 
