@@ -18,7 +18,9 @@ class RootApplication:
         self.bottom_frame = None
         # Canvas of the second frame
         self.canvas = None
-        # Scrollbar
+        # Frame inside the canvas
+        self.canvas_frame = None
+        # Scrollbar for the canvas frame
         self.scrollbar = None
         # Menu
         self.menu = None

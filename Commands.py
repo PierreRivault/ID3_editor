@@ -106,7 +106,7 @@ def set_global_image(window):
             for row_number in range(window.row_count):
                 window.original_image_table[row_number] = global_image
                 window.image_table[row_number] = ImageTk.PhotoImage(album)
-                window.table_values[row_number + 1]['Image'] = tk.Label(window.middle_frame,
+                window.table_values[row_number + 1]['Image'] = tk.Label(window.canvas_frame,
                                                                         image=window.image_table[row_number])
                 window.table_values[row_number + 1]['Image'].grid(row=row_number + 1,
                                                                   column=len(window.columns_table))

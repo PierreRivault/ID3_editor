@@ -35,36 +35,15 @@ def init_window(window):
 
     # Create the first frame
     window.top_frame = tk.Frame(window.root)
-    window.top_frame.grid(row=0, column=0, sticky='nsew', columnspan=2)
+    window.top_frame.grid(row=0, column=0, sticky='nsew')
 
     # Create the second frame
-    # Create the canvas
-    window.canvas = tk.Canvas(window.root)
-    # Create the frame in the canvas
-    window.middle_frame = tk.Frame(window.canvas)
-    # Create the scrollbar
-    window.scrollbar = tk.Scrollbar(window.root, orient=tk.VERTICAL, command=window.canvas.yview)
-    # Bind the scrollbar to the canvas
-    window.canvas.configure(yscrollcommand=window.scrollbar.set)
-    # Grid the canvas
-    window.canvas.grid(row=1, column=0, sticky='nsew')
-    # Pack the scrollbar on the right
-    window.scrollbar.grid(row=1, column=1, sticky="ns")
-    # Create the canvas view window
-    window.canvas.create_window((0, 0), window=window.middle_frame, anchor='nw')
-    # Bind events on new elements and on canvas resizing
-    window.middle_frame.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
-    window.canvas.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
-
-    # Manage second frame geometry
-    window.middle_frame.pack(expand=True, fill=tk.BOTH)
-    # Set grid weights
-    for index in range(len(window.columns_table_weight)):
-        window.middle_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index], uniform='1')
+    window.middle_frame = tk.Frame(window.root)
+    window.middle_frame.grid(row=1, column=0, sticky='nsew')
 
     # Create the third frame
     window.bottom_frame = tk.Frame(window.root)
-    window.bottom_frame.grid(row=2, column=0, sticky='nsew', columnspan=2)
+    window.bottom_frame.grid(row=2, column=0, sticky='nsew')
 
     # Create elements of the first frame, global values
     window.top_frame.grid_columnconfigure(0, weight=1)
@@ -107,14 +86,42 @@ def init_window(window):
     global_image_setting_button = tk.Button(window.top_frame, text='Définir l\'image globale',
                                             command=lambda: Commands.set_global_image(window))
     global_image_setting_button.grid(column=6, row=1, padx=10, pady=10)
+    # End of the first frame
 
     # Create elements of the second frame
-    # Create the table canvas
+    # Create the canvas
+    window.canvas = tk.Canvas(window.middle_frame)
+    # Create the scrollbar
+    window.scrollbar = tk.Scrollbar(window.middle_frame, orient=tk.VERTICAL)
+    # Pack the scrollbar on the right
+    window.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    # Config the scrollbar
+    window.scrollbar.config(command=window.canvas.yview)
+    # Bind the scrollbar to the canvas
+    window.canvas.configure(yscrollcommand=window.scrollbar.set)
+    # Pack the canvas
+    window.canvas.pack(fill=tk.BOTH, expand=True)
+    # Create the frame in the canvas
+    window.canvas_frame = tk.Frame(window.canvas, width=window.root.winfo_screenwidth()-window.scrollbar.winfo_width(), bg='blue')
+    window.canvas_frame.pack(fill=tk.BOTH, expand=True)
+    # Create the canvas view window
+    window.canvas.create_window((0, 0), window=window.canvas_frame, anchor='nw')
+
+    # Bind events on new elements and on canvas resizing
+    window.canvas_frame.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+    # window.canvas.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+
+    # Set grid weights
+    for index in range(len(window.columns_table_weight)):
+        window.canvas_frame.grid_columnconfigure(index, weight=window.columns_table_weight[index], uniform='1')
+    # Create the table headers
     table_headers = {}
     for index, head_name in enumerate(window.columns_table):
-        table_headers[head_name] = ttk.Label(window.middle_frame, text=window.columns_table[index], relief='solid')
+        table_headers[head_name] = ttk.Label(window.canvas_frame, text=window.columns_table[index], relief='solid')
         table_headers[head_name].grid(column=index + 1, row=0, sticky='ew')
     window.table_values[0] = table_headers
+    # End of the second frame
+
     # Create elements of the third frame, commands
     save_button = tk.Button(window.bottom_frame, text="Sauvegarder", command=lambda: save_metadata(window))
     save_button.pack()
@@ -147,12 +154,12 @@ def create_table(window):
         table_row = {}
         # Load metadata included in technical_names_table
         for head_index, head_name in enumerate(window.technical_names_table):
-            table_row[head_name] = tk.Text(window.middle_frame, height=1, width=1)
+            table_row[head_name] = tk.Text(window.canvas_frame, height=1, width=1)
             table_row[head_name].grid(row=index + 1, column=head_index + 2, sticky='ew')
             table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
                                         window.technical_names_table[head_index] in _track else '')
         # Load image
-        table_row['image_container'] = tk.Frame(window.middle_frame,
+        table_row['image_container'] = tk.Frame(window.canvas_frame,
                                                 width=window.table_values[0]['Image'].winfo_width())
         table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
         table_row['image_container'].grid_propagate(False)
@@ -169,17 +176,17 @@ def create_table(window):
             table_row['image'] = tk.Label(table_row['image_container'], image=window.image_table[index])
             table_row['image'].pack()
         # Add index
-        table_row['Index'] = tk.Text(window.middle_frame, height=1, width=1)
+        table_row['Index'] = tk.Text(window.canvas_frame, height=1, width=1)
         table_row['Index'].grid(row=index + 1, column=0, sticky='ew')
         table_row['Index'].insert(tk.END, str(index + 1))
         table_row['Index'].config(state=tk.DISABLED)
         # Add filename
-        table_row['Filename'] = tk.Text(window.middle_frame, height=1, width=1)
+        table_row['Filename'] = tk.Text(window.canvas_frame, height=1, width=1)
         table_row['Filename'].grid(row=index + 1, column=1, sticky='ew')
         table_row['Filename'].insert(tk.END, os.path.basename(file))
         table_row['Filename'].config(state=tk.DISABLED)
         # Add change image button
-        table_row['Change_image'] = tk.Button(window.middle_frame, text='Change',
+        table_row['Change_image'] = tk.Button(window.canvas_frame, text='Change',
                                               command=lambda image_index=index: Commands.change_image(window,
                                                                                                       image_index))
         table_row['Change_image'].grid(row=index + 1, column=len(window.columns_table) + 1)
@@ -190,9 +197,15 @@ def create_table(window):
 
 
 def on_configure(canvas):
-    # update scrollregion after starting 'mainloop'
+    # update scroll region after starting 'mainloop'
     # when all widgets are in canvas
     canvas.configure(scrollregion=canvas.bbox('all'))
+
+
+# makes frame width match canvas width
+def on_canvas_configure(event, self):
+    self.canvas.itemconfig(self.canvas_frame, width=event.width)
+
 
 def open_folder(window):
     folder_path = filedialog.askdirectory()
