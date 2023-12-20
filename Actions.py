@@ -118,6 +118,7 @@ def init_window(window):
     table_headers = {}
     for index, head_name in enumerate(window.columns_table):
         table_headers[head_name] = ttk.Label(window.canvas_frame, text=window.columns_table[index], relief='solid')
+        table_headers[head_name].configure(anchor="center")
         table_headers[head_name].grid(column=index + 1, row=0, sticky='ew')
     window.table_values[0] = table_headers
     # End of the second frame
@@ -159,6 +160,7 @@ def create_table(window):
             table_row[head_name].grid(row=index + 1, column=head_index + 2, sticky='ew')
             table_row[head_name].insert(tk.END, _track[window.technical_names_table[head_index]][0] if
                                         window.technical_names_table[head_index] in _track else '')
+            # table_row[head_name].bind('<Tab>', window.focus_next_widget)
         # Load image
         table_row['image_container'] = tk.Frame(window.canvas_frame,
                                                 width=window.table_values[0]['Image'].winfo_width())
@@ -231,19 +233,20 @@ def save_metadata(window):
                         file['performer'] = window.table_values[track_number + 1][head].get("1.0", "end-1c").strip()
                 file.save()
                 # Image saving
-                audio = ID3(window.folder_var + '/' + filename)
-                audio.delall('APIC')
-                audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
-                               data=image_to_byte_array(window.original_image_table[track_number])))
-                audio.save(v2_version=3)
+                if track_number in window.original_image_table:
+                    audio = ID3(window.folder_var + '/' + filename)
+                    audio.delall('APIC')
+                    audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
+                                   data=image_to_byte_array(window.original_image_table[track_number])))
+                    audio.save(v2_version=3)
                 # filename saving
                 title = window.table_values[track_number + 1]['title'].get("1.0", "end-1c")
                 if title:
-                    if window.table_values[track_number + 1]['Filename'] != title + '.mp3':
-                        os.rename(window.folder_var + '/' + filename, window.folder_var + '/' + title + '.mp3')
+                    if window.table_values[track_number + 1]['Filename'] != title.strip() + '.mp3':
+                        os.rename(window.folder_var + '/' + filename, window.folder_var + '/' + title.strip() + '.mp3')
                         window.table_values[track_number + 1]['Filename'].config(state=tk.NORMAL)
                         window.table_values[track_number + 1]['Filename'].delete("1.0", tk.END)
-                        window.table_values[track_number + 1]['Filename'].insert(tk.END, title + '.mp3')
+                        window.table_values[track_number + 1]['Filename'].insert(tk.END, title.strip() + '.mp3')
                         window.table_values[track_number + 1]['Filename'].config(state=tk.DISABLED)
             except mutagen.MutagenError:
                 tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')

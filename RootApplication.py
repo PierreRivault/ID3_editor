@@ -60,11 +60,17 @@ class RootApplication:
         if event.widget == self.root:
             for i in range(self.row_count):
                 if i in self.original_image_table:
-                    album = (self.original_image_table[i].resize((self.table_values[0]['Image'].winfo_width(),
-                             int(self.original_image_table[i].height * self.table_values[0][
-                                 'Image'].winfo_width() / self.original_image_table[i].width)),
-                             Image.BILINEAR))
-                    self.image_table[i] = ImageTk.PhotoImage(album)
-                    self.table_values[i + 1]['Image'] = tk.Label(self.canvas_frame, image=self.image_table[i])
-                    self.table_values[i + 1]['Image'].grid(row=i + 1, column=len(self.columns_table))
-
+                    thumbnail = (self.original_image_table[i].resize((self.table_values[0]['Image'].winfo_width(),
+                                 int(self.original_image_table[i].height * self.table_values[0][
+                                     'Image'].winfo_width() / self.original_image_table[i].width)),
+                                 Image.BILINEAR))
+                    self.image_table[i] = ImageTk.PhotoImage(thumbnail)
+                    # Remove old image from the GUI
+                    for children in self.table_values[i + 1]['image_container'].winfo_children():
+                        children.destroy()
+                    self.table_values[i + 1]['Image'] = tk.Label(self.table_values[i + 1]['image_container'],
+                                                                 image=self.image_table[i])
+                    self.table_values[i + 1]['Image'].pack()
+                    self.table_values[i + 1].update()
+            self.root.update()
+            self.root.update_idletasks()
