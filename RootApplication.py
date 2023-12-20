@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 
 
 class RootApplication:
@@ -49,3 +50,21 @@ class RootApplication:
     # makes frame width match canvas width
     def on_canvas_configure(self, event):
         self.canvas.itemconfig(self.frame_id, width=event.width)
+
+    def on_configure(self, event):
+        # update scroll region after starting 'mainloop'
+        # when all widgets are in canvas
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def on_window_resize(self, event):
+        if event.widget == self.root:
+            for i in range(self.row_count):
+                if i in self.original_image_table:
+                    album = (self.original_image_table[i].resize((self.table_values[0]['Image'].winfo_width(),
+                             int(self.original_image_table[i].height * self.table_values[0][
+                                 'Image'].winfo_width() / self.original_image_table[i].width)),
+                             Image.BILINEAR))
+                    self.image_table[i] = ImageTk.PhotoImage(album)
+                    self.table_values[i + 1]['Image'] = tk.Label(self.canvas_frame, image=self.image_table[i])
+                    self.table_values[i + 1]['Image'].grid(row=i + 1, column=len(self.columns_table))
+

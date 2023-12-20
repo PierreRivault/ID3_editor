@@ -102,15 +102,14 @@ def init_window(window):
     # Pack the canvas
     window.canvas.pack(fill=tk.BOTH, expand=True)
     # Create the frame in the canvas
-    window.canvas_frame = tk.Frame(window.canvas, width=window.root.winfo_screenwidth()-window.scrollbar.winfo_width(), bg='blue')
+    window.canvas_frame = tk.Frame(window.canvas, width=window.root.winfo_screenwidth()-window.scrollbar.winfo_width())
     window.canvas_frame.pack(fill=tk.BOTH, expand=True)
     # Create the canvas view window
     window.frame_id = window.canvas.create_window((0, 0), window=window.canvas_frame, anchor='nw')
 
-    # Bind events on new elements and on canvas resizing
-    window.canvas_frame.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+    # Bind events on canvas resizing
+    window.canvas_frame.bind('<Configure>', window.on_configure)
     window.canvas.bind('<Configure>', window.on_canvas_configure)
-    # window.canvas.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
 
     # Set grid weights
     for index in range(len(window.columns_table_weight)):
@@ -130,6 +129,7 @@ def init_window(window):
     # Create keyboard shortcuts
     window.root.bind("<Control-o>", lambda e: open_folder(window))
     window.root.bind("<Control-s>", lambda e: save_metadata(window))
+    window.root.bind("<Configure>", window.on_window_resize)
 
     return window
 
@@ -193,14 +193,7 @@ def create_table(window):
         table_row['Change_image'].grid(row=index + 1, column=len(window.columns_table) + 1)
         window.table_values[index + 1] = table_row
         window.row_count += 1
-    on_configure(window.canvas)
     return
-
-
-def on_configure(canvas):
-    # update scroll region after starting 'mainloop'
-    # when all widgets are in canvas
-    canvas.configure(scrollregion=canvas.bbox('all'))
 
 
 def open_folder(window):

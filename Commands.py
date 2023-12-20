@@ -102,7 +102,6 @@ def set_global_image(window):
                                           int(global_image.height * window.table_values[0][
                                               'Image'].winfo_width() / global_image.width)),
                                          Image.BILINEAR))
-            print('old: ', window.table_values[0]['Image'].winfo_width())
             for row_number in range(window.row_count):
                 window.original_image_table[row_number] = global_image
                 window.image_table[row_number] = ImageTk.PhotoImage(album)
@@ -110,7 +109,6 @@ def set_global_image(window):
                                                                         image=window.image_table[row_number])
                 window.table_values[row_number + 1]['Image'].grid(row=row_number + 1,
                                                                   column=len(window.columns_table))
-            print('new: ', window.table_values[0]['Image'].winfo_width())
         except IOError:
             tk.messagebox.showerror('Image not found', 'The global image provided was not found')
     else:
