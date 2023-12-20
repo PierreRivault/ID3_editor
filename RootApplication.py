@@ -18,6 +18,7 @@ class RootApplication:
         self.bottom_frame = None
         # Canvas of the second frame
         self.canvas = None
+        self.frame_id = None
         # Frame inside the canvas
         self.canvas_frame = None
         # Scrollbar for the canvas frame
@@ -44,3 +45,7 @@ class RootApplication:
         self.global_image_path = None
         # global image shown in the window
         self.global_image = None
+
+    # makes frame width match canvas width
+    def on_canvas_configure(self, event):
+        self.canvas.itemconfig(self.frame_id, width=event.width)

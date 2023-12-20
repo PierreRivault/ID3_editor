@@ -105,10 +105,11 @@ def init_window(window):
     window.canvas_frame = tk.Frame(window.canvas, width=window.root.winfo_screenwidth()-window.scrollbar.winfo_width(), bg='blue')
     window.canvas_frame.pack(fill=tk.BOTH, expand=True)
     # Create the canvas view window
-    window.canvas.create_window((0, 0), window=window.canvas_frame, anchor='nw')
+    window.frame_id = window.canvas.create_window((0, 0), window=window.canvas_frame, anchor='nw')
 
     # Bind events on new elements and on canvas resizing
     window.canvas_frame.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
+    window.canvas.bind('<Configure>', window.on_canvas_configure)
     # window.canvas.bind('<Configure>', lambda event, canvas=window.canvas: on_configure(canvas))
 
     # Set grid weights
@@ -200,11 +201,6 @@ def on_configure(canvas):
     # update scroll region after starting 'mainloop'
     # when all widgets are in canvas
     canvas.configure(scrollregion=canvas.bbox('all'))
-
-
-# makes frame width match canvas width
-def on_canvas_configure(event, self):
-    self.canvas.itemconfig(self.canvas_frame, width=event.width)
 
 
 def open_folder(window):
