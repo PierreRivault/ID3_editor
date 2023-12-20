@@ -98,15 +98,19 @@ def set_global_image(window):
     if window.global_image_path:
         try:
             global_image = Image.open(window.global_image_path)
-            album = (global_image.resize((window.table_values[0]['Image'].winfo_width(),
-                                          int(global_image.height * window.table_values[0][
-                                              'Image'].winfo_width() / global_image.width)),
-                                         Image.BILINEAR))
+            thumbnail = (global_image.resize((window.table_values[0]['Image'].winfo_width(),
+                                              int(global_image.height * window.table_values[0][
+                                                  'Image'].winfo_width() / global_image.width)),
+                                             Image.BILINEAR))
             for row_number in range(window.row_count):
                 window.original_image_table[row_number] = global_image
-                window.image_table[row_number] = ImageTk.PhotoImage(album)
-                window.table_values[row_number + 1]['Image'] = tk.Label(window.canvas_frame,
-                                                                        image=window.image_table[row_number])
+                window.image_table[row_number] = ImageTk.PhotoImage(thumbnail)
+                # Remove old image from the GUI
+                for children in window.table_values[row_number + 1]['image_container'].winfo_children():
+                    children.destroy()
+                window.table_values[row_number + 1]['Image'] = tk.Label(
+                    window.table_values[row_number + 1]['image_container'],
+                    image=window.image_table[row_number])
                 window.table_values[row_number + 1]['Image'].grid(row=row_number + 1,
                                                                   column=len(window.columns_table))
         except IOError:
@@ -141,8 +145,8 @@ def change_image(window, index):
             image = Image.open(image_path)
             window.original_image_table[index] = image
             thumbnail = (image.resize((window.table_values[0]['Image'].winfo_width(),
-                                      int(image.height * window.table_values[0][
-                                          'Image'].winfo_width() / image.width)), Image.BILINEAR))
+                                       int(image.height * window.table_values[0][
+                                           'Image'].winfo_width() / image.width)), Image.BILINEAR))
             window.image_table[index] = ImageTk.PhotoImage(thumbnail)
             # Remove old image from the GUI
             for children in window.table_values[index + 1]['image_container'].winfo_children():
