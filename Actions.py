@@ -6,6 +6,7 @@ import glob
 import os
 from io import BytesIO
 from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3NoHeaderError
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import ImageTk, Image
@@ -152,7 +153,10 @@ def create_table(window):
     window.row_count = 0
 
     for index, file in enumerate(mp3_files):
-        _track = EasyID3(file)
+        try:
+            _track = EasyID3(file)
+        except ID3NoHeaderError:
+            _track = EasyID3()
         table_row = {}
         # Load metadata included in technical_names_table
         for head_index, head_name in enumerate(window.technical_names_table):
@@ -166,7 +170,10 @@ def create_table(window):
                                                 width=window.table_values[0]['Image'].winfo_width())
         table_row['image_container'].grid(row=index + 1, column=len(window.columns_table))
         table_row['image_container'].grid_propagate(False)
-        audio = ID3(file)
+        try:
+            audio = ID3(file)
+        except ID3NoHeaderError:
+            audio = ID3()
         if audio.get("APIC:"):
             raw_album = audio.get("APIC:").data
             window.original_image_table[index] = Image.open(BytesIO(raw_album))
