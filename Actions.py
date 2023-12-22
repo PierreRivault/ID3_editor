@@ -230,7 +230,7 @@ def save_metadata(window):
         for track_number in range(window.row_count):
             filename = window.table_values[track_number + 1]['Filename'].get("1.0", "end-1c")
             try:
-                file = EasyID3(window.folder_var + '/' + filename)
+                file = EasyID3()
                 # metadata saving
                 for head in window.technical_names_table:
                     file[head] = window.table_values[track_number + 1][head].get(
@@ -238,14 +238,14 @@ def save_metadata(window):
                     # Save artist value also in performer to be compatible with more systems
                     if head == 'artist':
                         file['performer'] = window.table_values[track_number + 1][head].get("1.0", "end-1c").strip()
-                file.save()
+                file.save(window.folder_var + '/' + filename)
                 # Image saving
                 if track_number in window.original_image_table:
                     audio = ID3(window.folder_var + '/' + filename)
                     audio.delall('APIC')
                     audio.add(APIC(encoding=3, mime='image/jpeg', type=3,
                                    data=image_to_byte_array(window.original_image_table[track_number])))
-                    audio.save(v2_version=3)
+                    audio.save(window.folder_var + '/' + filename, v2_version=3)
                 # filename saving
                 title = window.table_values[track_number + 1]['title'].get("1.0", "end-1c")
                 if title:
