@@ -1,15 +1,11 @@
 import io
 
 import mutagen
-import Commands
 import glob
 import os
-from io import BytesIO
-from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3NoHeaderError
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from PIL import ImageTk, Image
+from tkinter import filedialog, messagebox
+from PIL import Image
 
 from mutagen.id3 import ID3, APIC
 
@@ -49,7 +45,7 @@ def save_metadata(window):
         for track_number in range(window.row_count):
             filename = window.table_values[track_number + 1]['Filename'].get("1.0", "end-1c")
             try:
-                file = EasyID3()
+                file = ID3()
                 # metadata saving
                 for head in window.technical_names_table:
                     file[head] = window.table_values[track_number + 1][head].get(

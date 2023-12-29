@@ -163,7 +163,7 @@ class RootApplication:
     def on_canvas_configure(self, event):
         self.root.nametowidget('right_frame.table_frame.table_canvas').itemconfig(self.frame_id, width=event.width)
 
-    def on_configure(self, event):
+    def on_configure(self, _event):
         # update scroll region after starting 'mainloop'
         # when all widgets are in canvas
         self.root.nametowidget('right_frame.table_frame.table_canvas').configure(
