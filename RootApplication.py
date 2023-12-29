@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import ImageTk, Image
-from mutagen.id3 import ID3, ID3NoHeaderError
+from mutagen.id3 import ID3, ID3NoHeaderError, APIC
 from io import BytesIO
 import os
+import mutagen
 import Commands
 import Actions
 import Settings
@@ -17,6 +18,8 @@ class RootApplication:
     columns_table_weight = [1, 8, 8, 4, 8, 2, 6, 6, 2, 4, 3]
     technical_names_table = ['title', 'genre', 'album', 'date', 'composer', 'artist', 'tracknumber']
     technical_keys_table = ['TIT2', 'TCON', 'TALB', 'TDRC', 'TCOM', 'TPE1', 'TRCK']
+    technical_keys_function_table = [mutagen.id3.TIT2, mutagen.id3.TCON, mutagen.id3.TALB, mutagen.id3.TDRC,
+                                     mutagen.id3.TCOM, mutagen.id3.TPE1, mutagen.id3.TRCK]
 
     def __init__(self):
         # Useful variables
@@ -24,6 +27,7 @@ class RootApplication:
         self.row_count = 0
         self.original_image_table = {}
         self.image_table = {}
+        self.folder_var = ''
 
         # Main window
         self.root = tk.Tk()
@@ -93,7 +97,7 @@ class RootApplication:
 
         # Create keyboard shortcuts
         self.root.bind("<Control-o>", lambda e: Actions.open_folder(self))
-        self.root.bind("<Control-s>", lambda e: Actions.save_metadata(self))
+        self.root.bind("<Control-s>", lambda e: self.save_table_to_files())
         self.root.bind("<Configure>", self.on_window_resize)
 
     def init_menu_bar(self):
@@ -246,3 +250,35 @@ class RootApplication:
         # Add the image to the window
         tk.Label(self.Table.nametowidget('row' + str(line_index) + 'col' + str(len(self.columns_table))),
                  image=self.image_table[line_index]).pack()
+
+    def save_table_to_files(self):
+        msg_box = tk.messagebox.askyesno('Sauvegarder les modifications',
+                                         'Êtes-vous sûr de vouloir sauvegarder vos modifications ?', icon='warning')
+        if msg_box:
+            for track_number in range(self.row_count):
+                filename = self.Table.nametowidget('row' + str(track_number) + 'col1').get("1.0", "end-1c")
+                try:
+                    file = ID3()
+                    # metadata saving
+                    for index, head in enumerate(self.technical_keys_function_table):
+                        file.add(head(encoding=3, text=u'' + self.Table.nametowidget(
+                            'row' + str(track_number) + 'col' + str(index + 2)).get("1.0", "end-1c").strip() + ''))
+                    # Image saving
+                    if track_number in self.original_image_table:
+                        file.add(APIC(encoding=3, mime='image/jpeg', type=3,
+                                      data=Actions.image_to_byte_array(self.original_image_table[track_number])))
+                        file.save(self.folder_var + '/' + filename, v2_version=3)
+                    # filename saving
+                    title = (self.Table.nametowidget('row' + str(track_number) + 'col' +
+                                                     str(self.technical_keys_table.index('TIT2') + 2)).get("1.0",
+                                                                                                           "end-1c"))
+                    if title:
+                        if filename != title.strip() + '.mp3':
+                            os.rename(self.folder_var + '/' + filename, self.folder_var + '/' + title.strip() + '.mp3')
+                            self.Table.nametowidget('row' + str(track_number) + 'col1').config(state=tk.NORMAL)
+                            self.Table.nametowidget('row' + str(track_number) + 'col1').delete("1.0", tk.END)
+                            self.Table.nametowidget('row' + str(track_number) + 'col1').insert(tk.END,
+                                                                                               title.strip() + '.mp3')
+                            self.Table.nametowidget('row' + str(track_number) + 'col1').config(state=tk.DISABLED)
+                except mutagen.MutagenError:
+                    tk.messagebox.showerror('File not found', 'File ' + filename + ' not found')
