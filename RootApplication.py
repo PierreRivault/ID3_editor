@@ -107,7 +107,7 @@ class RootApplication:
         # Create File menu
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="Open Folder", command=lambda: Actions.open_folder(self), accelerator="Ctrl+O")
-        file_menu.add_command(label="Save", command=lambda: Actions.save_metadata(self), accelerator="Ctrl+S")
+        file_menu.add_command(label="Save", command=lambda: self.save_table_to_files(), accelerator="Ctrl+S")
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.destroy)
         menubar.add_cascade(label="File", menu=file_menu)
